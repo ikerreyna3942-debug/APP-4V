@@ -9,6 +9,7 @@
 <body>
     <header>
         <h1>Generador de Prompts V4 - Catálogo E-Commerce</h1>
+        <p>Selecciona una opción para configurar y generar el prompt optimizado</p>
     </header>
     
     <main class="container">
@@ -21,37 +22,53 @@
             <button id="btn-borrar" class="btn-danger" disabled>Borrar Todo (Reset Absoluto)</button>
         </section>
 
-        <!-- ZONA DERECHA: MODIFICADORES -->
+        <!-- ZONA DERECHA: MODIFICADORES Y OPCIONES -->
         <section class="right-panel">
             <div class="modifiers">
-                <h3>Vistas (3V)</h3>
-                <div class="btn-group" id="group-vistas">
-                    <button class="mod-btn active" data-type="vista" data-val="Frontal">Frontal</button>
-                    <button class="mod-btn" data-type="vista" data-val="Lateral 90°">Lateral</button>
-                    <button class="mod-btn" data-type="vista" data-val="Isométrica pura lineal (sin sombras)">Isométrica (Dibujo)</button>
-                    <button class="mod-btn" data-type="vista" data-val="Superior (25% inclinación)">Superior 25%</button>
+                <div class="section-title">Opciones Principales</div>
+                
+                <div class="main-buttons-grid" id="main-buttons-container">
+                    <button type="button" class="main-btn" data-boton="solo mueble">solo mueble</button>
+                    <button type="button" class="main-btn" data-boton="vistas">vistas</button>
+                    <button type="button" class="main-btn" data-boton="entorno">entorno</button>
+                    <button type="button" class="main-btn" data-boton="vistas + tela y madera">vistas + tela y madera</button>
+                    <button type="button" class="main-btn" data-boton="vistas + tela">vistas + tela</button>
+                    <button type="button" class="main-btn" data-boton="madera">madera</button>
+                    <button type="button" class="main-btn" data-boton="hd">hd</button>
+                    <button type="button" class="main-btn btn-span-full" data-boton="Clonar Vistas (Color y Tela) - Obliga a igualar exactamente madera, tela y vista">Clonar Vistas (Color y Tela) - Obliga a igualar exactamente madera, tela y vista</button>
+                    <button type="button" class="main-btn btn-span-full" data-boton="Clonar Múltiples Vistas 360">Clonar Múltiples Vistas 360</button>
                 </div>
 
-                <h3>Telas</h3>
-                <div class="btn-group" id="group-telas">
-                    <button class="mod-btn" data-type="tela" data-val="Bouclé Blanco">Bouclé Blanco</button>
-                    <button class="mod-btn" data-type="tela" data-val="Chenille Tweed Avena">Chenille Tweed</button>
-                    <button class="mod-btn" data-type="tela" data-val="Lino Crudo">Lino Crudo</button>
-                    <button class="mod-btn" data-type="tela" data-val="Tactopiel Negra">Tactopiel</button>
+                <!-- Sub-panel Dinámico para Vistas -->
+                <div id="sub-vistas" class="sub-panel hidden">
+                    <div class="sub-panel-title">Ángulos de Vista Disponibles</div>
+                    <div class="sub-options-grid" id="grid-sub-vistas">
+                        <button type="button" class="sub-option-chip active" data-sub="Frontal 0°">Frontal 0°</button>
+                        <button type="button" class="sub-option-chip" data-sub="3/4 Isométrica 45°">3/4 Isométrica 45°</button>
+                        <button type="button" class="sub-option-chip" data-sub="Lateral 90°">Lateral 90°</button>
+                        <button type="button" class="sub-option-chip" data-sub="Arriba lineal">Arriba lineal</button>
+                        <button type="button" class="sub-option-chip" data-sub="Arriba 3/4">Arriba 3/4</button>
+                        <button type="button" class="sub-option-chip" data-sub="Trasera 135°">Trasera 135°</button>
+                    </div>
                 </div>
 
-                <h3>Maderas</h3>
-                <div class="btn-group" id="group-maderas">
-                    <button class="mod-btn" data-type="madera" data-val="Madera de Encino">Encino</button>
-                    <button class="mod-btn" data-type="madera" data-val="Madera de Nogal">Nogal</button>
-                    <button class="mod-btn" data-type="madera" data-val="Madera de Tzalam">Tzalam</button>
-                </div>
-
-                <h3>Ambientes</h3>
-                <div class="btn-group" id="group-ambientes">
-                    <button class="mod-btn active" data-type="ambiente" data-val="Minimalista puro (sin sombras)">Minimalista Puro</button>
-                    <button class="mod-btn" data-type="ambiente" data-val="Estudio de fotografía e-commerce">Estudio Fotográfico</button>
-                    <button class="mod-btn" data-type="ambiente" data-val="Exterior iluminado por luz solar natural">Exterior</button>
+                <!-- Sub-panel Dinámico para Entorno -->
+                <div id="sub-entorno" class="sub-panel hidden">
+                    <div class="sub-panel-title">Parámetros de Entorno y Espacio</div>
+                    <div class="form-group-row">
+                        <div class="form-field">
+                            <label for="input-medidas">Medidas</label>
+                            <input type="text" id="input-medidas" name="medidas" placeholder="Ej: 200cm x 90cm x 85cm">
+                        </div>
+                        <div class="form-field">
+                            <label for="input-tipo-mueble">Tipo de mueble</label>
+                            <input type="text" id="input-tipo-mueble" name="tipo_mueble" placeholder="Ej: Sofá modular 3 plazas">
+                        </div>
+                        <div class="form-field">
+                            <label for="input-lugar-mueble">Lugar del mueble</label>
+                            <input type="text" id="input-lugar-mueble" name="lugar_mueble" placeholder="Ej: Salón nórdico iluminado">
+                        </div>
+                    </div>
                 </div>
             </div>
 
