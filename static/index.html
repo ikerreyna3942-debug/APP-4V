@@ -13,13 +13,66 @@
     </header>
     
     <main class="container">
-        <!-- ZONA IZQUIERDA: DRAG & DROP -->
+        <!-- ZONA IZQUIERDA: DRAG & DROP MULTI-ZONAS -->
         <section class="left-panel">
-            <div id="dropzone" class="dropzone">
-                <p>Arrastra y suelta la imagen del mueble aquí<br><small>(No se permite clic para subir)</small></p>
-                <img id="image-preview" class="hidden" alt="Preview">
+            <!-- Zona 1: Mueble Principal (Múltiples fotos permitidas) -->
+            <div class="dropzone-section">
+                <div class="dropzone-header">
+                    <span class="dropzone-title">Mueble Principal</span>
+                    <span id="mueble-count-badge" class="badge-counter">0 fotos</span>
+                </div>
+                <div id="dropzone-mueble" class="dropzone dropzone-multi">
+                    <div id="mueble-empty-prompt" class="dropzone-empty-prompt">
+                        <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <p>Arrastra fotos del mueble aquí<br><small>(Permite varios ángulos y perspectivas)</small></p>
+                    </div>
+                    <!-- Galería dinámica de miniaturas -->
+                    <div id="mueble-thumbnails-grid" class="thumbnails-grid hidden"></div>
+                </div>
             </div>
-            <button id="btn-borrar" class="btn-danger" disabled>Borrar Todo (Reset Absoluto)</button>
+
+            <!-- Referencias de Materiales (Madera y Tela) -->
+            <div class="references-grid">
+                <!-- Zona 2: Referencia de Madera (Opcional) -->
+                <div class="dropzone-section-ref">
+                    <div class="dropzone-header-sm">
+                        <span class="ref-title">Madera (Opcional)</span>
+                    </div>
+                    <div id="dropzone-madera" class="dropzone-compact">
+                        <div id="madera-empty-prompt" class="dropzone-ref-empty">
+                            <span class="ref-icon">🪵</span>
+                            <p>Textura Madera</p>
+                        </div>
+                        <div id="madera-preview-card" class="ref-preview-card hidden">
+                            <img id="madera-preview-img" class="ref-img" alt="Madera">
+                            <button type="button" id="btn-remove-madera" class="ref-remove-btn ref-delete-btn" title="Quitar madera" aria-label="Quitar madera">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zona 3: Referencia de Tela (Opcional) -->
+                <div class="dropzone-section-ref">
+                    <div class="dropzone-header-sm">
+                        <span class="ref-title">Tela (Opcional)</span>
+                    </div>
+                    <div id="dropzone-tela" class="dropzone-compact">
+                        <div id="tela-empty-prompt" class="dropzone-ref-empty">
+                            <span class="ref-icon">🧵</span>
+                            <p>Textura Tela</p>
+                        </div>
+                        <div id="tela-preview-card" class="ref-preview-card hidden">
+                            <img id="tela-preview-img" class="ref-img" alt="Tela">
+                            <button type="button" id="btn-remove-tela" class="ref-remove-btn ref-delete-btn" title="Quitar tela" aria-label="Quitar tela">✕</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="btn-borrar" class="btn-danger" disabled>Borrar Todo (Reset Absoluto)</button>
         </section>
 
         <!-- ZONA DERECHA: MODIFICADORES Y OPCIONES -->
@@ -72,14 +125,21 @@
                 </div>
             </div>
 
-            <button id="btn-generar" class="btn-primary" disabled>Generar Prompt V4</button>
+            <button type="button" id="btn-generar" class="btn-primary" disabled>Generar Prompt V4</button>
             
             <div id="loading" class="hidden">Analizando con Gemini Multimodal...</div>
             
-            <div id="result-area" class="hidden">
-                <h3>Prompt Generado:</h3>
-                <textarea id="prompt-output" readonly rows="10"></textarea>
-                <button id="btn-copiar" class="btn-secondary">Copiar Prompt</button>
+            <!-- ÁREA DE RESULTADOS DINÁMICOS MULTI-VISTA -->
+            <div id="result-area" class="result-area-container hidden">
+                <div class="result-top-bar">
+                    <div class="result-title-wrap">
+                        <h3 id="result-heading">Prompts Generados:</h3>
+                        <span id="result-vistas-badge" class="result-pill-badge hidden">0 vistas</span>
+                    </div>
+                    <button type="button" id="btn-copiar-todo" class="btn-copy-all hidden">Copiar Todas las Vistas</button>
+                </div>
+                <!-- Contenedor inyectado dinámicamente con múltiples tarjetas/textareas -->
+                <div id="cards-container" class="cards-container results-cards-container"></div>
             </div>
         </section>
     </main>
