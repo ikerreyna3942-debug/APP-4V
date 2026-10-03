@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Prompts V4</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Generador de Prompts V4 - Catálogo E-Commerce</h1>
+    </header>
+    
+    <main class="container">
+        <!-- ZONA IZQUIERDA: DRAG & DROP -->
+        <section class="left-panel">
+            <div id="dropzone" class="dropzone">
+                <p>Arrastra y suelta la imagen del mueble aquí<br><small>(No se permite clic para subir)</small></p>
+                <img id="image-preview" class="hidden" alt="Preview">
+            </div>
+            <button id="btn-borrar" class="btn-danger" disabled>Borrar Todo (Reset Absoluto)</button>
+        </section>
+
+        <!-- ZONA DERECHA: MODIFICADORES -->
+        <section class="right-panel">
+            <div class="modifiers">
+                <h3>Vistas (3V)</h3>
+                <div class="btn-group" id="group-vistas">
+                    <button class="mod-btn active" data-type="vista" data-val="Frontal">Frontal</button>
+                    <button class="mod-btn" data-type="vista" data-val="Lateral 90°">Lateral</button>
+                    <button class="mod-btn" data-type="vista" data-val="Isométrica pura lineal (sin sombras)">Isométrica (Dibujo)</button>
+                    <button class="mod-btn" data-type="vista" data-val="Superior (25% inclinación)">Superior 25%</button>
+                </div>
+
+                <h3>Telas</h3>
+                <div class="btn-group" id="group-telas">
+                    <button class="mod-btn" data-type="tela" data-val="Bouclé Blanco">Bouclé Blanco</button>
+                    <button class="mod-btn" data-type="tela" data-val="Chenille Tweed Avena">Chenille Tweed</button>
+                    <button class="mod-btn" data-type="tela" data-val="Lino Crudo">Lino Crudo</button>
+                    <button class="mod-btn" data-type="tela" data-val="Tactopiel Negra">Tactopiel</button>
+                </div>
+
+                <h3>Maderas</h3>
+                <div class="btn-group" id="group-maderas">
+                    <button class="mod-btn" data-type="madera" data-val="Madera de Encino">Encino</button>
+                    <button class="mod-btn" data-type="madera" data-val="Madera de Nogal">Nogal</button>
+                    <button class="mod-btn" data-type="madera" data-val="Madera de Tzalam">Tzalam</button>
+                </div>
+
+                <h3>Ambientes</h3>
+                <div class="btn-group" id="group-ambientes">
+                    <button class="mod-btn active" data-type="ambiente" data-val="Minimalista puro (sin sombras)">Minimalista Puro</button>
+                    <button class="mod-btn" data-type="ambiente" data-val="Estudio de fotografía e-commerce">Estudio Fotográfico</button>
+                    <button class="mod-btn" data-type="ambiente" data-val="Exterior iluminado por luz solar natural">Exterior</button>
+                </div>
+            </div>
+
+            <button id="btn-generar" class="btn-primary" disabled>Generar Prompt V4</button>
+            
+            <div id="loading" class="hidden">Analizando con Gemini Multimodal...</div>
+            
+            <div id="result-area" class="hidden">
+                <h3>Prompt Generado:</h3>
+                <textarea id="prompt-output" readonly rows="10"></textarea>
+                <button id="btn-copiar" class="btn-secondary">Copiar Prompt</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
