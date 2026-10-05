@@ -116,6 +116,10 @@ def is_multiview_request(boton_principal: str, sub_opcion: str) -> bool:
     btn = (boton_principal or "").strip().lower()
     sub = (sub_opcion or "").strip().lower()
     
+    # 0. Isolated material replacement modes are strictly single-view (never multiview)
+    if btn in ("tela", "madera", "madera y tela", "tela y madera", "tela + madera"):
+        return False
+    
     # 1. Explicit 360 mode
     if "360" in btn or "clonar múltiples vistas 360" in btn or "clonar multiples vistas 360" in btn:
         return True
@@ -126,6 +130,7 @@ def is_multiview_request(boton_principal: str, sub_opcion: str) -> bool:
             return True
             
     return False
+
 
 # ===========================================================================
 # Image Preprocessing & Sanitization Engine (<50MB RAM Guard)
@@ -276,10 +281,29 @@ def build_system_instructions(
             "Directiva Especial (Vistas + Tela): Enfocar la atención en el ángulo de cámara exacto y en la sustitución/descripción fotorrealista de la tapicería textil. "
             "BLOQUEO DE PRESERVACIÓN ESTRICTO: Las patas y estructura de madera/metal deben permanecer 100% idénticas e inalteradas."
         )
+    elif btn == "tela":
+        specialized_rules.append(
+            "Directiva Especial (Modo Tela Aislado):\n"
+            "- TAREA: Sustituir con máxima precisión la tapicería textil del mueble utilizando la muestra de referencia textil suministrada (o descripción técnica de tela).\n"
+            "- BLOQUEO DE PRESERVACIÓN ESTRICTO: Las patas, base, bastidor y estructura de madera o metal deben permanecer 100% idénticas e inalteradas en forma, geometría, especie de madera, acabado y ensambles como en la foto original. PROHIBIDO alterar, rediseñar, reemplazar o recolorar las patas o el marco estructural.\n"
+            "- RESTRICCIONES TEXTILES: Mapeo y envoltura conforme alrededor de las curvaturas 3D del mueble, preservando rigurosamente cojines, pliegues, arrugas naturales, capitoné y sombras de oclusión ambiental. Reducción dramática de escala macro (~97%-98%) para evitar patrones sobredimensionados y garantizar micro-trama de tejido hiperrealista a escala física real. Perspectiva de cámara única bloqueada 100% al ángulo de la fotografía original del mueble (NO generar múltiples ángulos ni vistas ortogonales).\n"
+            "- Exclusiones obligatorias (Negative Prompt): CGI, 3D render, plastic, generic fabric, loss of weave, altered geometry, perspective distortion, altered wood, changed legs."
+        )
     elif btn == "madera":
         specialized_rules.append(
-            "Directiva Especial (Madera): Describir en detalle el tipo de madera, patrón de veta, corte, tonalidad, barniz y tratamiento superficial. "
-            "BLOQUEO DE PRESERVACIÓN ESTRICTO: Toda la tapicería y cojines existentes deben permanecer 100% idénticos e inalterados."
+            "Directiva Especial (Modo Madera Aislado):\n"
+            "- TAREA: Sustituir ÚNICAMENTE los componentes lígneos del mueble (patas, base, marco, faldones) utilizando con máxima fidelidad la muestra de referencia de madera suministrada (o descripción técnica).\n"
+            "- BLOQUEO DE PRESERVACIÓN ESTRICTO: Toda la tapicería y cojines existentes deben permanecer 100% idénticos e inalterados en color, textura, trama, volumen y pliegues. PROHIBIDO alterar, rediseñar o cambiar el color de la tela existente.\n"
+            "- RESTRICCIONES LÍGNEAS: Flujo de veta anatómica alineado estrictamente a la dirección constructiva natural (veta vertical en patas y montantes, horizontal en rieles, faldones y travesaños), textura de poro abierto/cerrado según muestra, brillo y acabado de superficie. Perspectiva de cámara única bloqueada 100% al ángulo de la fotografía original del mueble (NO generar múltiples ángulos ni vistas ortogonales).\n"
+            "- Exclusiones obligatorias (Negative Prompt): altered fabric, changed upholstery, CGI, 3D render, plastic, flat wood, altered geometry."
+        )
+    elif btn in ("madera y tela", "tela y madera", "tela + madera"):
+        specialized_rules.append(
+            "Directiva Especial (Modo Madera y Tela Aislado):\n"
+            "- TAREA: Sustituir simultáneamente TANTO la tapicería textil COMO los componentes lígneos del mueble utilizando las respectivas muestras de referencia textil y de madera suministradas (o descripciones técnicas).\n"
+            "- BLOQUEO DE PRESERVACIÓN ESTRICTO: Congelar al 100% la silueta 3D, contorno, uniones, ensambles, descansabrazos y geometría estructural del mueble original. Aplicar ambos materiales de manera conforme sin modificar proporciones. Mantener una perspectiva de cámara única bloqueada estrictamente a la imagen original del mueble (NO generar múltiples ángulos ni hoja 360).\n"
+            "- RESTRICCIONES DE MATERIALES: Aplicar el material textil de forma conforme a las curvas 3D con reducción de escala macro (~97%-98%) preservando cojines y pliegues. Aplicar el acabado de madera con veta anatómica natural (vertical en patas, horizontal en rieles) y acabado fotorrealista.\n"
+            "- Exclusiones obligatorias (Negative Prompt): CGI, 3D render, plastic, generic fabric, loss of weave, flat wood, altered geometry, changed proportions, redesigned furniture, perspective distortion."
         )
 
     spec_text = ""
@@ -324,6 +348,13 @@ def build_user_prompt(
 
     if boton_principal:
         lines.append(f"Botón / Modo Principal: {boton_principal.strip()}")
+        btn_lower = boton_principal.strip().lower()
+        if btn_lower == "tela":
+            lines.append("Acción Solicitada: Reemplazar únicamente la tapicería textil utilizando la referencia textil. Congelar estructura y patas de madera/metal.")
+        elif btn_lower == "madera":
+            lines.append("Acción Solicitada: Reemplazar únicamente las piezas de madera utilizando la referencia de madera. Congelar tapizado y cojines.")
+        elif btn_lower in ("madera y tela", "tela y madera", "tela + madera"):
+            lines.append("Acción Solicitada: Reemplazar tanto tapicería como piezas de madera utilizando las referencias. Congelar silueta y geometría 3D.")
 
     camera_angle = (sub_opcion or vista or "").strip()
     if camera_angle:
@@ -429,13 +460,23 @@ def build_deterministic_prompt(
     if camera_spec:
         angulo_desc = f"{camera_spec['directive']}. {camera_spec['geometry']}"
         camera_neg = camera_spec['negative']
+    elif btn in ("tela", "madera", "madera y tela", "tela y madera", "tela + madera"):
+        angulo_desc = "Perspectiva de cámara única bloqueada idéntica a la toma original del mueble de referencia, encuadre fijo 1:1, distancia focal 85mm f/11 para nitidez total sin distorsión angular ni generación multi-vista."
+        camera_neg = "perspectiva distorsionada, alteración de ángulo de cámara, distorsión angular, vistas múltiples"
     else:
         raw_angle = (sub_opcion or vista or "").strip() or "Perspectiva 3/4 isométrica fotorrealista"
         angulo_desc = f"{raw_angle}. Distancia focal 85mm para perspectiva sin distorsión óptica, apertura f/5.6 con nitidez total en todo el volumen del mueble."
         camera_neg = "perspectiva distorsionada, aberración óptica"
 
-    tela_desc = (tela or "").strip() or "tapicería textil premium con trama de lino/algodón de alta densidad"
-    madera_desc = (madera or "").strip() or "madera natural con veta noble definida y acabado satinado"
+    if not (tela or "").strip() and btn in ("tela", "madera y tela", "tela y madera", "tela + madera"):
+        tela_desc = "tapicería textil extraída de la muestra de referencia cargada (tejido con micro-trama de alta definición)"
+    else:
+        tela_desc = (tela or "").strip() or "tapicería textil premium con trama de lino/algodón de alta densidad"
+
+    if not (madera or "").strip() and btn in ("madera", "madera y tela", "tela y madera", "tela + madera"):
+        madera_desc = "acabado de madera noble extraído de la muestra de referencia cargada (veta anatómica y poro natural)"
+    else:
+        madera_desc = (madera or "").strip() or "madera natural con veta noble definida y acabado satinado"
 
     sections = []
 
@@ -461,23 +502,49 @@ def build_deterministic_prompt(
         sections.append("Tamaño de lienzo: 2080x2080 px")
         sections.append("Formato: Hoja técnica de consistencia rotacional multi-ángulo 360° (Turntable Studio Sheet)")
         sections.append("Iluminación: Estudio 360 simétrico sin variación cromática (5500K softbox)")
+    elif btn == "tela":
+        sections.append("Tamaño de lienzo: 2080x2080 px")
+        sections.append("Fondo: Blanco sólido (#FFFFFF)")
+        sections.append("Posición: Perfectamente centrado")
+        sections.append("Operación: Sustitución aislada de tapicería textil con preservación estricta de estructura y patas")
+    elif btn == "madera":
+        sections.append("Tamaño de lienzo: 2080x2080 px")
+        sections.append("Fondo: Blanco sólido (#FFFFFF)")
+        sections.append("Posición: Perfectamente centrado")
+        sections.append("Operación: Sustitución aislada de componentes de madera con preservación estricta de tapicería y cojines")
+    elif btn in ("madera y tela", "tela y madera", "tela + madera"):
+        sections.append("Tamaño de lienzo: 2080x2080 px")
+        sections.append("Fondo: Blanco sólido (#FFFFFF)")
+        sections.append("Posición: Perfectamente centrado")
+        sections.append("Operación: Sustitución simultánea de madera y tela con preservación total de geometría 3D")
     else:
         sections.append("Tamaño de lienzo: 2080x2080 px")
         sections.append("Fondo: Blanco sólido (#FFFFFF)")
         sections.append("Posición: Perfectamente centrado")
 
     # 2. Structural & Design Description (Absolute Single Truth Reference)
-    sections.append(f"Pieza de Mobiliario: {mueble_nombre}, dimensiones {medidas_desc}. Geometría equilibrada con detalles constructivos limpios, aristas de alta definición y fidelidad topológica 100% idéntica al mueble de referencia.")
+    if btn in ("madera y tela", "tela y madera", "tela + madera"):
+        sections.append(f"Pieza de Mobiliario: {mueble_nombre}, dimensiones {medidas_desc}. Geometría equilibrada con silueta 3D, uniones y proporciones 100% congeladas e idénticas al mueble de referencia, sustituyendo únicamente materiales de acabado.")
+    elif btn == "tela":
+        sections.append(f"Pieza de Mobiliario: {mueble_nombre}, dimensiones {medidas_desc}. Geometría 100% preservada idéntica al mueble original, con estructura y patas inalteradas, sustituyendo únicamente la tapicería.")
+    elif btn == "madera":
+        sections.append(f"Pieza de Mobiliario: {mueble_nombre}, dimensiones {medidas_desc}. Geometría 100% preservada idéntica al mueble original, con tapicería y cojines inalterados, sustituyendo únicamente los componentes de madera.")
+    else:
+        sections.append(f"Pieza de Mobiliario: {mueble_nombre}, dimensiones {medidas_desc}. Geometría equilibrada con detalles constructivos limpios, aristas de alta definición y fidelidad topológica 100% idéntica al mueble de referencia.")
 
     # 3. View & Camera Setup
     sections.append(f"Ángulo de Cámara y Vista: {angulo_desc}")
 
     # 4. Materials & Textures (4-Pillar Deconstruction & Conformal Mapping)
     mat_parts = []
-    if btn in ("vistas + tela", "vistas + tela y madera") or tela:
-        mat_parts.append(f"Tapicería: {tela_desc} (tejido adaptado conforme a las curvas 3D, reducción macro ~97%)")
-    if btn in ("madera", "vistas + tela y madera") or madera:
-        mat_parts.append(f"Acabado en Madera: {madera_desc} (veta anatómica alineada en dirección estructural)")
+    if btn in ("tela", "vistas + tela", "vistas + tela y madera", "madera y tela", "tela y madera", "tela + madera") or tela:
+        mat_parts.append(f"Tapicería: {tela_desc} (tejido adaptado conforme a las curvas 3D, reducción macro ~97%, preservando pliegues, cojines y capitoné)")
+        if btn == "tela":
+            mat_parts.append("Estructura: Patas, base y bastidor original estrictamente preservados 100% idénticos en madera/metal original")
+    if btn in ("madera", "vistas + tela y madera", "madera y tela", "tela y madera", "tela + madera") or madera:
+        mat_parts.append(f"Acabado en Madera: {madera_desc} (veta anatómica alineada en dirección estructural: vertical en patas, horizontal en rieles y faldones)")
+        if btn == "madera":
+            mat_parts.append("Tapicería: Tapizado, tela y cojines originales estrictamente preservados 100% inalterados")
     if not mat_parts:
         mat_parts.append(f"Materiales: {madera_desc}, complementado con {tela_desc}")
     sections.append("Materiales y Texturas: " + " | ".join(mat_parts) + ".")
@@ -493,11 +560,20 @@ def build_deterministic_prompt(
         sections.append("Calidad y Render: Fotografía comercial de producto fotorrealista 8K UHD, cámara Hasselblad H6D-100c con lente 85mm f/11, iluminación de estudio difusa balanceada 5500K, profundidad de campo calibrada, render sin artefactos.")
 
     # 7. Exclusions & Specialized Negative Prompt
-    base_negative = "sin elementos superpuestos, sin personas, sin marcas de agua, sin texto, sin artefactos digitales, sin aspecto plástico CGI"
-    if camera_neg:
-        sections.append(f"Exclusiones y Negative Prompt: {base_negative}, {camera_neg}.")
+    neg_items = ["sin elementos superpuestos", "sin personas", "sin marcas de agua", "sin texto", "sin artefactos digitales"]
+    if btn == "tela":
+        neg_items.extend(["CGI", "3D render", "plastic", "generic fabric", "loss of weave", "altered geometry", "perspective distortion", "altered wood", "changed legs"])
+    elif btn == "madera":
+        neg_items.extend(["altered fabric", "changed upholstery", "CGI", "3D render", "plastic", "flat wood", "altered geometry"])
+    elif btn in ("madera y tela", "tela y madera", "tela + madera"):
+        neg_items.extend(["CGI", "3D render", "plastic", "generic fabric", "loss of weave", "flat wood", "altered geometry", "changed proportions", "redesigned furniture", "perspective distortion"])
     else:
-        sections.append(f"Exclusiones: {base_negative}.")
+        neg_items.append("sin aspecto plástico CGI")
+
+    if camera_neg:
+        neg_items.append(camera_neg)
+
+    sections.append(f"Exclusiones y Negative Prompt: {', '.join(neg_items)}.")
 
     return "\n".join(sections)
 
@@ -969,6 +1045,8 @@ async def generate_prompt(
             title = "Prompt Principal"
             if sub_opcion:
                 title = f"Vista: {sub_opcion}"
+            elif boton_principal:
+                title = f"Modo: {boton_principal.capitalize()}"
             return JSONResponse(
                 status_code=200,
                 content={
