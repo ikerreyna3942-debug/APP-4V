@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,14 +8,14 @@
 </head>
 <body>
     <header>
-        <h1>Generador de Prompts V4 - Catálogo E-Commerce</h1>
-        <p>Selecciona una opción para configurar y generar el prompt optimizado</p>
+        <h1>Generador de Prompts V4 - CatÃ¡logo E-Commerce</h1>
+        <p>Selecciona una opciÃ³n para configurar y generar el prompt optimizado</p>
     </header>
     
     <main class="container">
         <!-- ZONA IZQUIERDA: DRAG & DROP MULTI-ZONAS -->
         <section class="left-panel">
-            <!-- Zona 1: Mueble Principal (Múltiples fotos permitidas) -->
+            <!-- Zona 1: Mueble Principal (MÃºltiples fotos permitidas) -->
             <div class="dropzone-section">
                 <div class="dropzone-header">
                     <span class="dropzone-title">Mueble Principal</span>
@@ -28,9 +28,9 @@
                             <circle cx="8.5" cy="8.5" r="1.5"></circle>
                             <polyline points="21 15 16 10 5 21"></polyline>
                         </svg>
-                        <p>Arrastra fotos del mueble aquí<br><small>(Permite varios ángulos y perspectivas)</small></p>
+                        <p>Arrastra fotos del mueble aquÃ­<br><small>(Permite varios Ã¡ngulos y perspectivas)</small></p>
                     </div>
-                    <!-- Galería dinámica de miniaturas -->
+                    <!-- GalerÃ­a dinÃ¡mica de miniaturas -->
                     <div id="mueble-thumbnails-grid" class="thumbnails-grid hidden"></div>
                 </div>
             </div>
@@ -44,12 +44,12 @@
                     </div>
                     <div id="dropzone-madera" class="dropzone-compact">
                         <div id="madera-empty-prompt" class="dropzone-ref-empty">
-                            <span class="ref-icon">🪵</span>
+                            <span class="ref-icon">ðŸªµ</span>
                             <p>Textura Madera</p>
                         </div>
                         <div id="madera-preview-card" class="ref-preview-card hidden">
                             <img id="madera-preview-img" class="ref-img" alt="Madera">
-                            <button type="button" id="btn-remove-madera" class="ref-remove-btn ref-delete-btn" title="Quitar madera" aria-label="Quitar madera">✕</button>
+                            <button type="button" id="btn-remove-madera" class="ref-remove-btn ref-delete-btn" title="Quitar madera" aria-label="Quitar madera">âœ•</button>
                         </div>
                     </div>
                 </div>
@@ -61,12 +61,12 @@
                     </div>
                     <div id="dropzone-tela" class="dropzone-compact">
                         <div id="tela-empty-prompt" class="dropzone-ref-empty">
-                            <span class="ref-icon">🧵</span>
+                            <span class="ref-icon">ðŸ§µ</span>
                             <p>Textura Tela</p>
                         </div>
                         <div id="tela-preview-card" class="ref-preview-card hidden">
                             <img id="tela-preview-img" class="ref-img" alt="Tela">
-                            <button type="button" id="btn-remove-tela" class="ref-remove-btn ref-delete-btn" title="Quitar tela" aria-label="Quitar tela">✕</button>
+                            <button type="button" id="btn-remove-tela" class="ref-remove-btn ref-delete-btn" title="Quitar tela" aria-label="Quitar tela">âœ•</button>
                         </div>
                     </div>
                 </div>
@@ -79,6 +79,15 @@
         <section class="right-panel">
             <div class="modifiers">
                 <div class="section-title">Opciones Principales</div>
+                <div class="control-group" style="margin-bottom: 15px;">
+                    <label for="ia-engine" style="display:block; margin-bottom:5px; font-weight:bold; color:#d1d5db;">Motor de IA (Destino del Prompt):</label>
+                    <select id="ia-engine" name="ia-engine" class="input-field" style="width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #4b5563; border-radius: 8px;">
+                        <option value="Universal">Universal (Sirve para todos)</option>
+                        <option value="ChatGPT">ChatGPT (DALL-E 3)</option>
+                        <option value="Google AI Studio">Google AI Studio</option>
+                        <option value="Gemini">Gemini</option>
+                    </select>
+                </div>
                 
                 <div class="main-buttons-grid" id="main-buttons-container">
                     <button type="button" class="main-btn" data-boton="solo mueble">solo mueble</button>
@@ -91,25 +100,25 @@
                     <button type="button" class="main-btn" data-boton="madera y tela">madera y tela</button>
                     <button type="button" class="main-btn" data-boton="hd">hd</button>
                     <button type="button" class="main-btn btn-span-full" data-boton="Clonar Vistas (Color y Tela) - Obliga a igualar exactamente madera, tela y vista">Clonar Vistas (Color y Tela) - Obliga a igualar exactamente madera, tela y vista</button>
-                    <button type="button" class="main-btn btn-span-full" data-boton="Clonar Múltiples Vistas 360">Clonar Múltiples Vistas 360</button>
+                    <button type="button" class="main-btn btn-span-full" data-boton="Clonar MÃºltiples Vistas 360">Clonar MÃºltiples Vistas 360</button>
                 </div>
 
-                <!-- Sub-panel Dinámico para Vistas -->
+                <!-- Sub-panel DinÃ¡mico para Vistas -->
                 <div id="sub-vistas" class="sub-panel hidden">
-                    <div class="sub-panel-title">Ángulos de Vista Disponibles</div>
+                    <div class="sub-panel-title">Ãngulos de Vista Disponibles</div>
                     <div class="sub-options-grid" id="grid-sub-vistas">
-                        <button type="button" class="sub-option-chip active" data-sub="Frontal 0°">Frontal 0°</button>
-                        <button type="button" class="sub-option-chip" data-sub="3/4 Isométrica 45°">3/4 Isométrica 45°</button>
-                        <button type="button" class="sub-option-chip" data-sub="Lateral 90°">Lateral 90°</button>
+                        <button type="button" class="sub-option-chip active" data-sub="Frontal 0Â°">Frontal 0Â°</button>
+                        <button type="button" class="sub-option-chip" data-sub="3/4 IsomÃ©trica 45Â°">3/4 IsomÃ©trica 45Â°</button>
+                        <button type="button" class="sub-option-chip" data-sub="Lateral 90Â°">Lateral 90Â°</button>
                         <button type="button" class="sub-option-chip" data-sub="Arriba lineal">Arriba lineal</button>
                         <button type="button" class="sub-option-chip" data-sub="Arriba 3/4">Arriba 3/4</button>
-                        <button type="button" class="sub-option-chip" data-sub="Trasera 135°">Trasera 135°</button>
+                        <button type="button" class="sub-option-chip" data-sub="Trasera 135Â°">Trasera 135Â°</button>
                     </div>
                 </div>
 
-                <!-- Sub-panel Dinámico para Entorno -->
+                <!-- Sub-panel DinÃ¡mico para Entorno -->
                 <div id="sub-entorno" class="sub-panel hidden">
-                    <div class="sub-panel-title">Parámetros de Entorno y Espacio</div>
+                    <div class="sub-panel-title">ParÃ¡metros de Entorno y Espacio</div>
                     <div class="form-group-row">
                         <div class="form-field">
                             <label for="input-medidas">Medidas</label>
@@ -117,11 +126,11 @@
                         </div>
                         <div class="form-field">
                             <label for="input-tipo-mueble">Tipo de mueble</label>
-                            <input type="text" id="input-tipo-mueble" name="tipo_mueble" placeholder="Ej: Sofá modular 3 plazas">
+                            <input type="text" id="input-tipo-mueble" name="tipo_mueble" placeholder="Ej: SofÃ¡ modular 3 plazas">
                         </div>
                         <div class="form-field">
                             <label for="input-lugar-mueble">Lugar del mueble</label>
-                            <input type="text" id="input-lugar-mueble" name="lugar_mueble" placeholder="Ej: Salón nórdico iluminado">
+                            <input type="text" id="input-lugar-mueble" name="lugar_mueble" placeholder="Ej: SalÃ³n nÃ³rdico iluminado">
                         </div>
                     </div>
                 </div>
@@ -131,7 +140,7 @@
             
             <div id="loading" class="hidden">Analizando con Gemini Multimodal...</div>
             
-            <!-- ÁREA DE RESULTADOS DINÁMICOS MULTI-VISTA -->
+            <!-- ÃREA DE RESULTADOS DINÃMICOS MULTI-VISTA -->
             <div id="result-area" class="result-area-container hidden">
                 <div class="result-top-bar">
                     <div class="result-title-wrap">
@@ -140,7 +149,7 @@
                     </div>
                     <button type="button" id="btn-copiar-todo" class="btn-copy-all hidden">Copiar Todas las Vistas</button>
                 </div>
-                <!-- Contenedor inyectado dinámicamente con múltiples tarjetas/textareas -->
+                <!-- Contenedor inyectado dinÃ¡micamente con mÃºltiples tarjetas/textareas -->
                 <div id="cards-container" class="cards-container results-cards-container"></div>
             </div>
         </section>
@@ -149,3 +158,5 @@
     <script src="/static/script.js"></script>
 </body>
 </html>
+
+

@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------------
     // DOM Element References
     // -------------------------------------------------------------------------
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/'/g, '&#039;');
     }
 
-    async function copyText(text, btnElement, successLabel = '¡Copiado!') {
+    async function copyText(text, btnElement, successLabel = 'Â¡Copiado!') {
         if (!text) return false;
         let ok = false;
 
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'thumb-remove-btn';
-            removeBtn.innerText = '✕';
+            removeBtn.innerText = 'âœ•';
             removeBtn.title = `Eliminar ${item.file.name}`;
             removeBtn.setAttribute('aria-label', `Eliminar ${item.file.name}`);
             removeBtn.addEventListener('click', (e) => {
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (gridSubVistas) {
                 const chips = gridSubVistas.querySelectorAll('.sub-option-chip');
                 chips.forEach(c => c.classList.remove('active'));
-                const defaultChip = gridSubVistas.querySelector('.sub-option-chip[data-sub="Frontal 0°"]') || chips[0];
+                const defaultChip = gridSubVistas.querySelector('.sub-option-chip[data-sub="Frontal 0Â°"]') || chips[0];
                 if (defaultChip) defaultChip.classList.add('active');
             }
 
@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnCopiarTodo.classList.remove('hidden');
                 btnCopiarTodo.onclick = () => {
                     const combined = views.map(v => `=== ${v.titulo} ===\n${v.prompt}\n`).join('\n');
-                    copyText(combined, btnCopiarTodo, '¡Todas Copiadas!');
+                    copyText(combined, btnCopiarTodo, 'Â¡Todas Copiadas!');
                 };
             } else {
                 btnCopiarTodo.classList.add('hidden');
@@ -548,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const titleWrap = document.createElement('div');
             titleWrap.className = 'view-card-title';
-            titleWrap.innerHTML = `<span class="view-icon">📐</span> <h4>${escapeHtml(item.titulo)}</h4>`;
+            titleWrap.innerHTML = `<span class="view-icon">ðŸ“</span> <h4>${escapeHtml(item.titulo)}</h4>`;
 
             const actions = document.createElement('div');
             actions.className = 'view-card-actions';
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
             copyBtn.innerHTML = `<span>Copiar texto</span>`;
 
             copyBtn.addEventListener('click', () => {
-                copyText(item.prompt, copyBtn, '¡Copiado!');
+                copyText(item.prompt, copyBtn, 'Â¡Copiado!');
             });
 
             actions.appendChild(copyBtn);
@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let subOpcion = '';
             if (vistasModes.includes(botonPrincipal)) {
                 const activeSubChip = document.querySelector('#grid-sub-vistas .sub-option-chip.active');
-                subOpcion = activeSubChip ? (activeSubChip.dataset.sub || activeSubChip.innerText.trim()) : 'Frontal 0°';
+                subOpcion = activeSubChip ? (activeSubChip.dataset.sub || activeSubChip.innerText.trim()) : 'Frontal 0Â°';
             }
 
             // Entorno parameters
@@ -653,6 +653,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Legacy backward compatibility fields
             formData.append('vista', subOpcion || botonPrincipal || 'Frontal');
             formData.append('ambiente', '');
+            const iaEngineSelect = document.getElementById('ia-engine');
+            if (iaEngineSelect) {
+                formData.append('ia_engine', iaEngineSelect.value);
+            }
 
             // Update UI during dispatch
             btnGenerar.disabled = true;
@@ -673,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Error: ' + (data.error || 'No se pudo generar el prompt.'));
                 }
             } catch (err) {
-                alert('Error de conexión al servidor al generar el prompt.');
+                alert('Error de conexiÃ³n al servidor al generar el prompt.');
             } finally {
                 btnGenerar.disabled = uploadState.muebleFiles.length === 0;
                 if (loading) loading.classList.add('hidden');
@@ -681,3 +685,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+

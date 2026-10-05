@@ -1,4 +1,4 @@
-import os
+﻿import os
 import io
 import json
 import base64
@@ -191,7 +191,8 @@ def build_system_instructions(
     tela: str = "",
     madera: str = "",
     ambiente: str = "",
-    multiview: bool = False
+    multiview: bool = False,
+    ia_engine: str = 'Universal'
 ) -> str:
     btn = (boton_principal or "").strip().lower()
     is_entorno = (btn == "entorno") or bool((lugar_mueble or "").strip())
@@ -211,6 +212,15 @@ def build_system_instructions(
         "4. ILUMINACIÓN Y ÓPTICA: Parámetros comerciales de cámara (Hasselblad H6D-100c formato medio, lente 85mm/120mm macro, "
         "f/11 para nitidez total de catálogo, iluminación de estudio 5500K balanceada con sombras de oclusión ambiental pura).\n\n"
         "Reglas estrictas para estructurar el prompt de salida:\n"
+    )
+
+    if ia_engine == 'ChatGPT':
+        intro += "ADAPTACIÓN PARA CHATGPT (DALL-E 3): Ignora el exceso de comandos de cámara y redacta el prompt como un párrafo descriptivo muy fluido, enfatizando 'NO ALTERES LA FORMA ORIGINAL DEL MUEBLE'.\n"
+    elif ia_engine == 'Google AI Studio':
+        intro += "ADAPTACIÓN PARA GOOGLE AI STUDIO: Utiliza una estructura altamente técnica de 'system instructions', usa etiquetas XML o corchetes para enfatizar parámetros, y separa todo por pesos de prioridad (ej. (hyperrealistic:1.2)).\n"
+    elif ia_engine == 'Gemini':
+        intro += "ADAPTACIÓN PARA GEMINI: Genera el prompt con viñetas muy bien estructuradas, divide visualmente en 'Sujeto Principal', 'Materiales' y 'Calidad'. Se muy directo.\n"
+
     )
 
     if is_entorno:
@@ -287,7 +297,7 @@ def build_system_instructions(
             "- TAREA: Sustituir con máxima precisión la tapicería textil del mueble utilizando la muestra de referencia textil suministrada (o descripción técnica de tela).\n"
             "- BLOQUEO DE PRESERVACIÓN ESTRICTO: Las patas, base, bastidor y estructura de madera o metal deben permanecer 100% idénticas e inalteradas en forma, geometría, especie de madera, acabado y ensambles como en la foto original. PROHIBIDO alterar, rediseñar, reemplazar o recolorar las patas o el marco estructural.\n"
             "- RESTRICCIONES TEXTILES: Mapeo y envoltura conforme alrededor de las curvaturas 3D del mueble, preservando rigurosamente cojines, pliegues, arrugas naturales, capitoné y sombras de oclusión ambiental. Reducción dramática de escala macro (~97%-98%) para evitar patrones sobredimensionados y garantizar micro-trama de tejido hiperrealista a escala física real. Perspectiva de cámara única bloqueada 100% al ángulo de la fotografía original del mueble (NO generar múltiples ángulos ni vistas ortogonales).\n"
-            "- Exclusiones obligatorias (Negative Prompt): CGI, 3D render, plastic, generic fabric, loss of weave, altered geometry, perspective distortion, altered wood, changed legs."
+            "- Exclusiones obligatorias (Negative Prompt): CGI, 3D render, plastic, generic fabric, loss of weave, altered geometry, perspective distortion, altered wood, invented legs."
         )
     elif btn == "madera":
         specialized_rules.append(
@@ -350,7 +360,7 @@ def build_user_prompt(
         lines.append(f"Botón / Modo Principal: {boton_principal.strip()}")
         btn_lower = boton_principal.strip().lower()
         if btn_lower == "tela":
-            lines.append("Acción Solicitada: Reemplazar únicamente la tapicería textil utilizando la referencia textil. Congelar estructura y patas de madera/metal.")
+            lines.append("Acción Solicitada: Reemplazar únicamente la tapicería textil utilizando la referencia textil. Congelar toda la estructura de madera/metal.")
         elif btn_lower == "madera":
             lines.append("Acción Solicitada: Reemplazar únicamente las piezas de madera utilizando la referencia de madera. Congelar tapizado y cojines.")
         elif btn_lower in ("madera y tela", "tela y madera", "tela + madera"):
@@ -447,7 +457,8 @@ def build_deterministic_prompt(
     tela: str = "",
     madera: str = "",
     ambiente: str = "",
-    camera_override: Optional[Dict[str, str]] = None
+    camera_override: Optional[Dict[str, str]] = None,
+    ia_engine: str = 'Universal'
 ) -> str:
     btn = (boton_principal or "").strip().lower()
     is_entorno = (btn == "entorno") or bool((lugar_mueble or "").strip())
@@ -506,7 +517,7 @@ def build_deterministic_prompt(
         sections.append("Tamaño de lienzo: 2080x2080 px")
         sections.append("Fondo: Blanco sólido (#FFFFFF)")
         sections.append("Posición: Perfectamente centrado")
-        sections.append("Operación: Sustitución aislada de tapicería textil con preservación estricta de estructura y patas")
+        sections.append("Operación: Sustitución aislada de tapicería textil con preservación estricta de toda la estructura")
     elif btn == "madera":
         sections.append("Tamaño de lienzo: 2080x2080 px")
         sections.append("Fondo: Blanco sólido (#FFFFFF)")
@@ -526,7 +537,7 @@ def build_deterministic_prompt(
     if btn in ("madera y tela", "tela y madera", "tela + madera"):
         sections.append(f"Pieza de Mobiliario: {mueble_nombre}, dimensiones {medidas_desc}. Geometría equilibrada con silueta 3D, uniones y proporciones 100% congeladas e idénticas al mueble de referencia, sustituyendo únicamente materiales de acabado.")
     elif btn == "tela":
-        sections.append(f"Pieza de Mobiliario: {mueble_nombre}, dimensiones {medidas_desc}. Geometría 100% preservada idéntica al mueble original, con estructura y patas inalteradas, sustituyendo únicamente la tapicería.")
+        sections.append(f"Pieza de Mobiliario: {mueble_nombre}, dimensiones {medidas_desc}. Geometría 100% preservada idéntica al mueble original, con toda la estructura inalteradas, sustituyendo únicamente la tapicería.")
     elif btn == "madera":
         sections.append(f"Pieza de Mobiliario: {mueble_nombre}, dimensiones {medidas_desc}. Geometría 100% preservada idéntica al mueble original, con tapicería y cojines inalterados, sustituyendo únicamente los componentes de madera.")
     else:
@@ -540,7 +551,7 @@ def build_deterministic_prompt(
     if btn in ("tela", "vistas + tela", "vistas + tela y madera", "madera y tela", "tela y madera", "tela + madera") or tela:
         mat_parts.append(f"Tapicería: {tela_desc} (tejido adaptado conforme a las curvas 3D, reducción macro ~97%, preservando pliegues, cojines y capitoné)")
         if btn == "tela":
-            mat_parts.append("Estructura: Patas, base y bastidor original estrictamente preservados 100% idénticos en madera/metal original")
+            mat_parts.append("Estructura: Preservar patas/base SÓLO si existen en la foto original. Si es un mueble completamente tapizado hasta el piso, NO inventar patas, envolver 100% en tela")
     if btn in ("madera", "vistas + tela y madera", "madera y tela", "tela y madera", "tela + madera") or madera:
         mat_parts.append(f"Acabado en Madera: {madera_desc} (veta anatómica alineada en dirección estructural: vertical en patas, horizontal en rieles y faldones)")
         if btn == "madera":
@@ -562,7 +573,7 @@ def build_deterministic_prompt(
     # 7. Exclusions & Specialized Negative Prompt
     neg_items = ["sin elementos superpuestos", "sin personas", "sin marcas de agua", "sin texto", "sin artefactos digitales"]
     if btn == "tela":
-        neg_items.extend(["CGI", "3D render", "plastic", "generic fabric", "loss of weave", "altered geometry", "perspective distortion", "altered wood", "changed legs"])
+        neg_items.extend(["CGI", "3D render", "plastic", "generic fabric", "loss of weave", "altered geometry", "perspective distortion", "altered wood", "invented legs"])
     elif btn == "madera":
         neg_items.extend(["altered fabric", "changed upholstery", "CGI", "3D render", "plastic", "flat wood", "altered geometry"])
     elif btn in ("madera y tela", "tela y madera", "tela + madera"):
@@ -577,17 +588,7 @@ def build_deterministic_prompt(
 
     return "\n".join(sections)
 
-def build_deterministic_multiview(
-    boton_principal: str = "",
-    sub_opcion: str = "",
-    medidas: str = "",
-    tipo_mueble: str = "",
-    lugar_mueble: str = "",
-    vista: str = "",
-    tela: str = "",
-    madera: str = "",
-    ambiente: str = ""
-) -> Dict[str, Any]:
+def build_deterministic_multiview(boton_principal: str = "", sub_opcion: str = "", medidas: str = "", tipo_mueble: str = "", lugar_mueble: str = "", vista: str = "", tela: str = "", madera: str = "", ambiente: str = "", ia_engine: str = "Universal") -> Dict[str, Any]:
     order = ["frontal_0", "isometrica_45", "lateral_90", "cenital_arriba", "arriba_3_4", "trasera_135"]
     vistas = []
     
@@ -605,6 +606,7 @@ def build_deterministic_multiview(
             tela=tela,
             madera=madera,
             ambiente=ambiente,
+            ia_engine=ia_engine,
             camera_override=spec
         )
         vistas.append({
@@ -677,7 +679,8 @@ def parse_gemini_response(
             vista=vista,
             tela=tela,
             madera=madera,
-            ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
         )
     else:
         clean_text = text
@@ -723,7 +726,8 @@ async def execute_generation(
     tela: str = "",
     madera: str = "",
     ambiente: str = "",
-    image_bytes: Optional[bytes] = None
+    image_bytes: Optional[bytes] = None,
+    ia_engine: str = 'Universal'
 ) -> Dict[str, Any]:
     # Normalize furniture bytes
     files_list: List[bytes] = list(mueble_bytes_list) if mueble_bytes_list else []
@@ -745,7 +749,8 @@ async def execute_generation(
                 vista=vista,
                 tela=tela,
                 madera=madera,
-                ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
             )
         else:
             single_prompt = build_deterministic_prompt(
@@ -757,7 +762,8 @@ async def execute_generation(
                 vista=vista,
                 tela=tela,
                 madera=madera,
-                ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
             )
             title = "Prompt Principal"
             if sub_opcion:
@@ -782,7 +788,8 @@ async def execute_generation(
             vista=vista,
             tela=tela,
             madera=madera,
-            ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
         )
         sys_instructions = build_system_instructions(
             boton_principal=boton_principal,
@@ -794,6 +801,7 @@ async def execute_generation(
             tela=tela,
             madera=madera,
             ambiente=ambiente,
+            ia_engine=ia_engine,
             multiview=multiview
         )
         contents = build_gemini_contents(
@@ -825,7 +833,8 @@ async def execute_generation(
                 vista=vista,
                 tela=tela,
                 madera=madera,
-                ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
             )
         else:
             raise ValueError("Respuesta vacía recibida del modelo Gemini")
@@ -841,7 +850,8 @@ async def execute_generation(
                 vista=vista,
                 tela=tela,
                 madera=madera,
-                ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
             )
         else:
             single_prompt = build_deterministic_prompt(
@@ -853,7 +863,8 @@ async def execute_generation(
                 vista=vista,
                 tela=tela,
                 madera=madera,
-                ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
             )
             title = "Prompt Principal"
             if sub_opcion:
@@ -884,6 +895,7 @@ async def handle_json_generate(request: Request) -> JSONResponse:
     tela = str(body.get("tela") or "")
     madera = str(body.get("madera") or "")
     ambiente = str(body.get("ambiente") or "")
+    ia_engine = str(body.get("ia_engine") or "Universal")
 
     mueble_bytes_list: List[bytes] = []
     muebles_val = body.get("mueble_images")
@@ -919,7 +931,8 @@ async def handle_json_generate(request: Request) -> JSONResponse:
         vista=vista,
         tela=tela,
         madera=madera,
-        ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
     )
     return JSONResponse(status_code=200, content=result)
 
@@ -957,7 +970,8 @@ async def generate_prompt(
     lugar_mueble: str = Form(""),
     tela: str = Form(""),
     madera: str = Form(""),
-    ambiente: str = Form("")
+    ambiente: str = Form(""),
+    ia_engine: str = Form("Universal")
 ):
     try:
         content_type = request.headers.get("content-type", "").lower()
@@ -1011,7 +1025,8 @@ async def generate_prompt(
             vista=vista,
             tela=tela,
             madera=madera,
-            ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
         )
         return JSONResponse(status_code=200, content=result)
     except Exception as e:
@@ -1027,7 +1042,8 @@ async def generate_prompt(
                 vista=vista,
                 tela=tela,
                 madera=madera,
-                ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
             )
             return JSONResponse(status_code=200, content=fallback)
         else:
@@ -1040,7 +1056,8 @@ async def generate_prompt(
                 vista=vista,
                 tela=tela,
                 madera=madera,
-                ambiente=ambiente
+            ambiente=ambiente,
+            ia_engine=ia_engine
             )
             title = "Prompt Principal"
             if sub_opcion:
@@ -1061,3 +1078,6 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("app:app", host="0.0.0.0", port=port)
+
+
+
