@@ -133,6 +133,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "success": False,
             "error": f"El archivo de imagen es obligatorio y el modo debe ser uno de los 5 permitidos.{fields_hint}"
         }
+    )
 
 
 
