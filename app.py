@@ -150,6 +150,7 @@ async def global_exception_handler(request: Request, exc: Exception):
             "success": False,
             "error": f"Error interno del servidor: {str(exc)}"
         }
+    )
 
 
 
